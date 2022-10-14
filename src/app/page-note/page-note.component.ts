@@ -40,6 +40,7 @@ export class PageNoteComponent{
   infos:any = []
   nom_groupe: any;
   nom_projet: any;
+  count: number =0;
 
  public columnDefs: ColDef[] = [
   { field: 'nom', headerName: 'Nom'},
@@ -58,6 +59,7 @@ public defaultColDef: ColDef = {
 };
 
 @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
+  
 
 constructor(private http: HttpClient, private _authCookie: AuthCookie, private route: ActivatedRoute, private router: Router) {}
 
@@ -98,20 +100,19 @@ async onGridReady(params: GridReadyEvent) {
 }
 
  envoyer(){
-
   this.gridApi.forEachNode(async (rowNode, index) => {
-    
     this.note = rowNode.data.note
     this.commentaire = rowNode.data.commentaire
     this.id_note = rowNode.data.id_eleve.toString()
-    console.log("this.id_note :",this.id_note)
     this.http.put<any>(`http://localhost:4201/api/newnote`, { "id_groupe": this.id_groupe[0].id_groupe.toString(), "id_elvnoteur": this.id_noteur.toString(), "id_elvnote": this.id_note, "note":this.note, "commentaire":this.commentaire },{ headers : {"token" : this.token}})
-    .subscribe(() => {
-      this.router.navigate(["/merci"])
-    })
-    //this.router.navigate(["/merci"])
+    .subscribe(
+    (error) => {
+      console.log('this.count : ', this.count, "et this.rowData.length :", this.rowData.length);
+      this.count++;
+      if(this.count == this.rowData.length)
+        this.router.navigate(["/merci"])
+    });
   })
 }
 
 }
-
